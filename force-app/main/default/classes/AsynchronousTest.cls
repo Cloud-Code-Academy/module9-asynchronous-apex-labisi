@@ -43,7 +43,7 @@ public with sharing class AsynchronousTest {
 
         // Call the method to test between the startTest and stopTest methods
         Test.startTest();
-        NextStepFuture.updateNextStepField(testAccounts);
+        
         //YOUR CODE HERE
         Test.stopTest();
 
@@ -65,7 +65,7 @@ public with sharing class AsynchronousTest {
     @IsTest
     static void nextStepFuture_testCreateDealAndUpdateRole() {        
         Test.startTest();
-        
+        NextStepFuture.createDealAndUpdateRole();
         Test.stopTest();
 
         // Due to the Mixed DML error, we need to test the insertBigDeal method
