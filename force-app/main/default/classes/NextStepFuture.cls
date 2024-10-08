@@ -27,9 +27,29 @@ public with sharing class NextStepFuture {
      * Opportunity Next Step field is a standard field
      * Update the corresponding test class AsynchronousTest and test method nextStepFuture_testUpdateAllNextStep to cover test this method
      */
-    //[public | private ] [static] data_type method_name (input parameters) {
+    @future
+    public static void updateNextStepField (List<Id> accIds) {
+        List <Account> acctList = [SELECT Id, Next_Step__c, (SELECT Id, NextStep FROM Opportunities) FROM Account WHERE Id In :accIds];
+        List <Account> acctToUpdate = new List<Account>();
+        List<Opportunity> oppToUpdate = new List<Opportunity>();
+        for (Account acc : acctList) {
+            acc.Next_Step__c = 'Meeting in the future';
+            acctToUpdate.add(acc);
+            for (Opportunity opp : acc.Opportunities) {
+                opp.NextStep = 'Meeting in the future';
+                oppToUpdate.add(opp);
+            }
+        }
+      
+        if(!acctToUpdate.isEmpty()){
+            update acctToUpdate;
+           } 
+           if(!oppToUpdate.isEmpty()){
+            update oppToUpdate;
+           } 
+                   
     //  The body of the method
-    //}
+    }
 
     /*
     * Question 2
@@ -43,7 +63,7 @@ public with sharing class NextStepFuture {
         insertBigDeal(bigDeal);
 
         UserRole[] roles = [SELECT Id, Name FROM UserRole WHERE Id = :UserInfo.getUserRoleId() OR Name = 'CRO' LIMIT 1];
-        updateUserRoleName(roles);
+       updateUserRoleName(roles);
     }
 
     // Helper method to insert big deal
@@ -73,4 +93,6 @@ public with sharing class NextStepFuture {
 
         upsert role;
     }
+
+   
 }
