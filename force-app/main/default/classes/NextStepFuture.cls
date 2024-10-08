@@ -30,17 +30,19 @@ public with sharing class NextStepFuture {
     @future
     public static void updateNextStepField (List<Id> accIds) {
         List <Account> acctList = [SELECT Id, Next_Step__c, (SELECT Id, NextStep FROM Opportunities) FROM Account WHERE Id In :accIds];
+        List <Account> acctToUpdate = new List<Account>();
         List<Opportunity> oppToUpdate = new List<Opportunity>();
         for (Account acc : acctList) {
             acc.Next_Step__c = 'Meeting in the future';
+            acctToUpdate.add(acc);
             for (Opportunity opp : acc.Opportunities) {
                 opp.NextStep = 'Meeting in the future';
                 oppToUpdate.add(opp);
             }
         }
       
-        if(!acctList.isEmpty()){
-            update acctList;
+        if(!acctToUpdate.isEmpty()){
+            update acctToUpdate;
            } 
            if(!oppToUpdate.isEmpty()){
             update oppToUpdate;
@@ -61,7 +63,7 @@ public with sharing class NextStepFuture {
         insertBigDeal(bigDeal);
 
         UserRole[] roles = [SELECT Id, Name FROM UserRole WHERE Id = :UserInfo.getUserRoleId() OR Name = 'CRO' LIMIT 1];
-        updateUserRoleName(roles);
+       updateUserRoleName(roles);
     }
 
     // Helper method to insert big deal
@@ -91,4 +93,6 @@ public with sharing class NextStepFuture {
 
         upsert role;
     }
+
+   
 }

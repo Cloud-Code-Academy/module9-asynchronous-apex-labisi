@@ -35,8 +35,13 @@ public with sharing class NextStepBatch implements Database.Batchable<sObject>{
                 oppList.add(opp);     
         }
         }
+       if (!scope.isEmpty()) {
         update scope;
+       } 
+       if (!opplist.isEmpty()) {
         update oppList;
+       }
+        
         // Update the Next Step field on each record in the batch scope.
 
         // Loop through the scope account records
