@@ -22,12 +22,21 @@ public with sharing class NextStepBatch implements Database.Batchable<sObject>{
 
     public Database.QueryLocator start(Database.BatchableContext bc){
         // Query for all accounts and return the query locator.
-        return null; // Update null with the query locator
+        return Database.getQueryLocator('Select Id, Next_Step__c,' + '(SELECT Id, NextStep FROM Opportunities)' + 'FROM Account'); // Update null with the query locator
     }
     
     public void execute(Database.BatchableContext bc, List<Account> scope){
         final String BATCH_NEXT_STEP = 'Batching the next meetings together.';
-
+        List<Opportunity> oppList = new List<Opportunity>();
+        for (Account acc : scope) {
+            acc.Next_Step__c = 'Batching the next meetings together.';
+            for (Opportunity opp : acc.Opportunities) {
+                opp.NextStep = 'Batching the next meetings together.';
+                oppList.add(opp);     
+        }
+        }
+        update scope;
+        update oppList;
         // Update the Next Step field on each record in the batch scope.
 
         // Loop through the scope account records
@@ -48,17 +57,20 @@ public with sharing class NextStepBatch implements Database.Batchable<sObject>{
     
     public void finish(Database.BatchableContext bc){
         final List<User> USERS = [SELECT Id, Name, Email FROM User WHERE IsActive = true AND (NOT Email LIKE 'autoproc%')]; // DO NOT CHANGE
-
+        Set<String> activeUserEmails = new Set<String>();
+        for (User user : USERS) {
+            activeUserEmails.add(user.Email);
+        }
         // Get the email addresses of all active users
 
             // Pass the set of active user emails to the sendEmailToActiveUsers method
     }
 
     // Helper method to send an email to all emails in the set
-    private void sendEmailToActiveUsers(Set<String> emails){
+    private void sendEmailToActiveUsers(Set<String> activeUserEmails){
         try {
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-            mail.setToAddresses(new List<String>(emails));
+            mail.setToAddresses(new List<String>(activeUserEmails));
             mail.setSubject('Next Step Batch Complete');
             mail.setPlainTextBody('The next step batch has completed.');
             Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
